@@ -46,26 +46,13 @@ function init() {
     }
   }
 
-  const grid = new Grid(20, 10, 30, 2, 'blue')
+  const grid = new Grid(10, 5, 25, 4, 'blue')
   grid.createGrid()
 
-  const shape = [[1, 1], [1, 2], [1, 3]]
-  const fallingShapeCell = []
-
-  shape.forEach(coordinate => {
-    const activeCell = gridCells.filter(cell => {
-      return parseInt(cell.dataset.x) === coordinate[0] && parseInt(cell.dataset.y) === coordinate[1]
-    })
-    fallingShapeCell.push(activeCell)
-  })
-  console.log(fallingShapeCell)
-  fallingShapeCell.forEach(cell => {
-    cell[0].style.backgroundColor = 'red'
-  })
 
 
 
-  
 
 }
 window.addEventListener('DOMContentLoaded', init)
+

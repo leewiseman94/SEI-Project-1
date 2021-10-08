@@ -8,45 +8,55 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+}
+
+/* Align Left Grid and Right */
+.main-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: auto;
 }
 
 .grid {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  flex-wrap: wrap;
-  width: 300px;
-  margin-top: 50px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
 }
 
-.main-grid-cell {
+.grid-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 30px;
+}
+
+.grid-cell {
+  width: 30px;
+  border: 1px solid rgb(161, 156, 156);
+}
+
+
+
+
+/* .main-grid-cell {
   display: flex;
   flex-wrap: wrap;
   width: 10%;
   height: 30px;
   border: 1px solid black;
   padding: 5px;
-}
-
-.individual-grid-cell {
-  width: 33%;
-  border: 1px solid black;
-}
-
-/* .main-grid-cell:nth-child(-n + 10)  {
-  border-top: 4px solid black;
-}
-
-.main-grid-cell:nth-child(10n) {
-  border-right: 4px solid black;
-}
-
-.main-grid-cell:nth-child(n + 191) {
-  border-bottom: 4px solid black;
-}
-
-.main-grid-cell:nth-child(10n - 9) {
-  border-left: 4px solid black;
 } */
+
+
+
+
 
