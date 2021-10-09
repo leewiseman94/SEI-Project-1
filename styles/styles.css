@@ -56,10 +56,10 @@ body {
 .active.green {
   background-color: green;
 }
-.active.yellow {
-  background-color: yellow;
+.active.orange {
+  background-color: orange;
 }
-.acitve.purple {
+.active.purple {
   background-color: purple;
 }
 
@@ -72,8 +72,8 @@ body {
 .filled.green {
   background-color: green;
 }
-.filled.yellow {
-  background-color: yellow;
+.filled.orange {
+  background-color: orange;
 }
 .filled.purple {
   background-color: purple;
