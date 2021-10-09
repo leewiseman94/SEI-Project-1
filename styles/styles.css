@@ -46,6 +46,39 @@ body {
 
 
 
+/* Falling Shape */
+.active.red {
+  background-color: red;
+}
+.active.blue {
+  background-color: blue;
+}
+.active.green {
+  background-color: green;
+}
+.active.yellow {
+  background-color: yellow;
+}
+.acitve.purple {
+  background-color: purple;
+}
+
+.filled.red {
+  background-color: red;
+}
+.filled.blue {
+  background-color: blue;
+}
+.filled.green {
+  background-color: green;
+}
+.filled.yellow {
+  background-color: yellow;
+}
+.filled.purple {
+  background-color: purple;
+}
+
 
 /* .main-grid-cell {
   display: flex;
