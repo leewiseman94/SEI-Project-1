@@ -7,6 +7,7 @@ function init() {
   let activeShape
   let activeShapeCells = []
   let fallInterval
+  let nextActiveShapeCells = []
 
   // Set shape colors
   const colors = ['red', 'blue', 'green', 'orange', 'purple']
@@ -55,7 +56,7 @@ function init() {
   class Game {
     constructor() {
       this.score = 0
-      this.difficulty = 'medium'
+      this.difficulty = 'hard'
     }
 
     start() {
@@ -159,7 +160,7 @@ function init() {
         const activeCell = gridCells.filter(cell => {
           return parseInt(cell.dataset.x) === (coordinate.x + activeShape.location.x) && parseInt(cell.dataset.y) === (coordinate.y + activeShape.location.y)
         })
-        console.log('active cell ->', activeCell[0])
+        // console.log('active cell ->', activeCell[0])
         activeShapeCells.push(activeCell[0])
       })
       // Add required classes (to fill the correct cells for the shape)
@@ -175,7 +176,7 @@ function init() {
         cell.classList.remove('active')
         cell.classList.remove(`${activeShape.color}`)
       })
-      //Empty filledCells array
+      //Empty activeShapeCells array
       activeShapeCells = []
     }
 
@@ -183,31 +184,42 @@ function init() {
       // Will need conditions to check if hits wall or floor or other shape
       // If wall carry on
       // If floor or other shape then call change class to filled and call play function for next shape
-      const hitFloor = this.hitFloor()
-      console.log('hitFloor ->', hitFloor)
-      if (!this.hitFloor()) {
+      nextActiveShapeCells = []
+      activeShapeCells.forEach(activeCell => {
+        nextActiveShapeCells.push({ x: parseInt(activeCell.dataset.x) + parseInt(across), y: parseInt(activeCell.dataset.y) + down })
+      })
+      console.log('nextShapeCells', nextActiveShapeCells)
+
+      if (!this.collide()) {
         this.removeShape()
         this.drawShape(down, across, className)
       } else {
         clearInterval(fallInterval)
+        activeShapeCells.forEach(cell => {
+          cell.classList.remove('active')
+          cell.classList.add('filled')
+        })
         this.play()
       }
 
     }
 
     collide() {
-      // 
-      
-    }
+      // Get all the filled cells in the grid
+      let filledCells = []
+      filledCells = gridCells.filter(cell => {
+        return cell.classList.contains('filled')
+      })
 
-    hitFloor() {
-      return activeShapeCells.some(cell => {
-        console.log('y === rows - 5 ->', cell.dataset.y + ' ' + (this.rows - 5))
-        return parseInt(cell.dataset.y) === (parseInt(this.rows) - 1)
+      //return true or false if next shape cells are hitting the floor or another shape
+      return nextActiveShapeCells.some(cell => {
+        return parseInt(cell.y) === parseInt(this.rows) || filledCells.some(filledCell => {
+          return parseInt(filledCell.dataset.x) === parseInt(cell.x) && parseInt(filledCell.dataset.y) === parseInt(cell.y)
+        })
       })
     }
 
-    hitShape() {
+    hitWall() {
       
     }
 
@@ -228,7 +240,7 @@ function init() {
       this.randomShapeIndex = Math.floor(Math.random() * shapes.length)
       this.coordinates = shapes[this.randomShapeIndex].coordinates
       this.centrePoint = { x: 0, y: 0 }
-      this.location = newGame.difficulty === 'easy' || newGame.difficulty === 'medium' ? { x: 5, y: 0 } : { x: 4, y: 0 }
+      this.location = newGame.difficulty === 'easy' || newGame.difficulty === 'medium' ? { x: 5, y: 0 } : { x: 5, y: 0 }
       this.randomColorIndex = Math.floor(Math.random() * colors.length)
       this.color = colors[this.randomColorIndex]
     }
@@ -245,6 +257,8 @@ function init() {
 
   const newGame = new Game()
   newGame.start()
+
+  
 
 }
 window.addEventListener('DOMContentLoaded', init)
