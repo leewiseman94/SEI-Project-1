@@ -270,41 +270,39 @@ function init() {
               filledCells.splice(indexOfCell, 1)
             }
           })
-          const droppedCellCoordinates = []
-          // For every row above get all the filled cells and drop them down 1
-          // filledCells.forEach(filledCell => {
-          //   // If above current row
-          //   if (filledCell.dataset.y < activeRow.dataset.y) {
-          //     const filledCellColor = filledCell.classList.
-
-          //   }  
-          // })
+          
+          filledCells.forEach(filledCell => {
+            // If above current row
+            let cellColor = ''
+            // Get current cell color
+            console.log(filledCell.classList)
+            filledCell.classList.forEach(classItem => {
+              if (colors.includes(classItem)) {
+                cellColor = classItem
+              }
+            })
+            //Remove all filled classes and add to cell below
+            filledCell.classList.remove(cellColor)
+            filledCell.classList.remove('filled')
+            
+            const droppedCell = gridCells.filter(cell => {
+              return parseInt(cell.dataset.x) === (parseInt(filledCell.dataset.x)) && parseInt(cell.dataset.y) === (parseInt(filledCell.dataset.y) + 1) 
+            })
+            filledCells.push(droppedCell[0])
+            console.log(filledCells)
+          })
 
         }
       })
-      filledCells.forEach(filledCell => {
-        // If above current row
-        console.log(filledCell.classList)
-        filledCell.classList.forEach(classItem => {
-          if (colors.includes(classItem)) {
-
-          }
-        })
-      })
-
-
+      
     }
 
 
   }
 
-  
-  
+    
   // ! ****************** SHAPES ******************
 
-
-
-  
   // Set shapes
 
   class Shape {
@@ -321,11 +319,7 @@ function init() {
 
 
 
-
-  // nextShapes[0].inPlay()
-  // nextShapes[0].fall()
-
-
+  // ! ****************** STARTING GAME AND CALLING FUNCTIONS ******************
 
   const newGame = new Game()
   newGame.start()
