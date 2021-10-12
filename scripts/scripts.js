@@ -2,16 +2,22 @@
 function init() {
 
   // ! ********** VARIABLES **********
+  let inPlay = false
   let newGame
   let newGrid
-  const nextShapes = []
+  let nextShapes = []
   let activeShape
   let activeShapeCells = []
   let activeShapeRows = []
   let fallInterval
   let nextActiveShapeCells = []
-  const filledCells = []
+  let filledCells = []
   let cellClasses = []
+
+  // * Grid Variables
+  let gridRows = []
+  let gridCells = []
+  let grid = document.querySelector('.grid')
 
   // Set shape colors
   const colors = ['red', 'blue', 'green', 'orange', 'purple']
@@ -58,12 +64,12 @@ function init() {
   // ! ********** TETRIS **********
   // * All games -> Saved highscores etc
 
-  class Tetris {
-    constructor() {
-      this.gameHistory = []
-    }
+  // class Tetris {
+  //   constructor() {
+  //     this.gameHistory = []
+  //   }
     
-  }
+  // }
   
 
   // ! ********** GAME **********
@@ -80,10 +86,10 @@ function init() {
       // Remove any previous grid
       grid.innerHTML = ''
       // Create new grid
-      newGrid = undefined
       console.log('new game ->', newGame)
       newGrid = new Grid()
       newGrid.createGrid()
+      grid = document.querySelector('.grid')     
     }
 
     start() {
@@ -91,22 +97,26 @@ function init() {
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
-      console.log(newGrid)
+      inPlay = true
       newGrid.play()
-    }
-
-    pause() {
-      // pause interval?
-    }
-
-    // reset() {
-    //   grid.innerHTML = ''
-    //   this.score = 0
-    //   const startGrid = new Grid()
-    //   startGrid.createGrid()
-    // }
+    }    
 
     end() {
+      inPlay = false
+      // newGame = null
+      nextShapes = []
+      activeShape = null
+      activeShapeCells = []
+      activeShapeRows = []
+      fallInterval = null
+      nextActiveShapeCells = []
+      filledCells = []
+      cellClasses = []
+      gridRows = []
+      gridCells = []
+      clearInterval(fallInterval)
+      // newGrid.pause()
+      console.log(fallInterval)
       // show game over and reset board?
       console.log('End')
     }
@@ -118,10 +128,6 @@ function init() {
   // * Methods -> createNewGrid, drawNextShape, moveActiveShape, collide
   //   If hits collide (hits.filled class) then stop shape and create new
   //   Grid size will depend on game difficulty
-
-  const gridRows = []
-  const gridCells = []
-  const grid = document.querySelector('.grid')
 
   class Grid {
     constructor() {
@@ -162,34 +168,43 @@ function init() {
     }
 
     play() {
-      // Set active shape and draw on the grid and add
-      //draw next shape and then start a loop for the shape to fall
-      activeShape = nextShapes[0]
-      nextShapes.push(new Shape())
-      nextShapes.shift()
-      this.drawShape(0, 0)
+      if (inPlay) {
+        // Set active shape and draw on the grid and add
+        //draw next shape and then start a loop for the shape to fall
+        activeShape = nextShapes[0]
+        nextShapes.push(new Shape())
+        nextShapes.shift()
+        this.drawShape(0, 0)
+        
+        fallInterval = setInterval(() => {
+          // Move shape down 1 on the interval time
+          this.moveShape(1, 0, 'active')
+        }, this.gameSpeed)
+      }
       
+    }
+
+    pause() {
+      // pause interval?
+      clearInterval(fallInterval)
+    }
+
+    continue() {
       fallInterval = setInterval(() => {
-        // Move shape down 1 on the interval time
         this.moveShape(1, 0, 'active')
       }, this.gameSpeed)
     }
 
     drawShape(down, across) {
-
       // Check if shape is going to hit another shape so we can end the game if it does
- 
       nextActiveShapeCells = []
       activeShape.coordinates.forEach(coord => {
         nextActiveShapeCells.push({ x: (coord.x + activeShape.location.x), y: (coord.y + activeShape.location.y) })
       })
       
-      if (this.collide()) {
-        newGame.end()
-      }
-      
-      
-      
+      // if (this.collide()) {
+      //   newGame.end()
+      // }
 
 
       // * Draw next shape that it is waiting onto the grid and remove from nextShapes and then add another shape to the nextShapes array
@@ -249,6 +264,7 @@ function init() {
               this.dropLinesAbove(row)
             }) 
           }
+          console.log('here as well')
           this.play()
         }
 
@@ -320,7 +336,7 @@ function init() {
       fallInterval = setInterval(() => {
         // Move shape down 1 on the interval time
         this.moveShape(1, 0, 'active')
-      }, 50)
+      }, 50)      
     }
 
     slowDown() {
@@ -454,7 +470,7 @@ function init() {
 
   // ! ****************** STARTING GAME AND CALLING FUNCTIONS ******************
 
-  const tetris = new Tetris()
+  // const tetris = new Tetris()
 
 
   function startNewGame() {
@@ -462,28 +478,44 @@ function init() {
     newGame.start()
   }
 
-  function createGrid() {
+  function pauseGame() {
+    if (pauseBtn.innerText === 'Pause') {
+      newGrid.pause()
+      pauseBtn.innerText = 'Continue'
+    } else if (pauseBtn.innerText === 'Continue') {
+      newGrid.continue()
+      pauseBtn.innerText = 'Pause'
+    }
+  }
+
+  function endGame() {
+    newGame.end()
     newGame.setGrid()
   }
 
   const startBtn = document.querySelector('#start-btn')
   startBtn.addEventListener('click', startNewGame)
 
+  const pauseBtn = document.querySelector('#pause-btn')
+  pauseBtn.addEventListener('click', pauseGame)
+
   const endGameBtn = document.querySelector('#end-game-btn')
-  endGameBtn.addEventListener('click', createGrid)
+  endGameBtn.addEventListener('click', endGame)
 
   function handleKeyDown(event) {
-    const key = event.keyCode //store key in a variable
-    if (key === 39 ) { 
-      // if the right arrow is pressed and the cat is not on the right edge
-      newGrid.moveShape(0, 1)
-    } else if (key === 37) {
-      newGrid.moveShape(0, -1)
-    } else if (key === 38) {
-      newGrid.rotateShape()
-    } else if (key === 40) {
-      newGrid.speedUp()
-    }
+    if (pauseBtn.innerText === 'Pause') {
+      const key = event.keyCode //store key in a variable
+      if (key === 39 ) { 
+        // if the right arrow is pressed and the cat is not on the right edge
+        newGrid.moveShape(0, 1)
+      } else if (key === 37) {
+        newGrid.moveShape(0, -1)
+      } else if (key === 38) {
+        newGrid.rotateShape()
+      } else if (key === 40) {
+        newGrid.speedUp()
+      }
+    }   
   }
 
   function handleKeyUp(event) {
@@ -497,7 +529,7 @@ function init() {
   document.addEventListener('keyup', handleKeyUp)
 
   newGame = new Game('hard')
-  createGrid()
+  newGame.setGrid()
 
 
 }
