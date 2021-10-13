@@ -18,6 +18,10 @@ function init() {
   let pauseButton
   let endGameButton
 
+  let animationInterval
+  let upAnimationInterval
+  let downAnimationInterval
+
   // * Grid Variables
   let gridRows = []
   let gridCells = []
@@ -76,6 +80,9 @@ function init() {
     }
 
     load() {
+      const nextShapesContainer = document.querySelector('.next-shapes')
+      nextShapesContainer.style.border = '0px'
+      nextShapesContainer.innerHTML = ''
       const controlsWrapper = document.querySelector('.controls-wrapper')
       controlsWrapper.innerHTML = ''
       const mainWrapper = document.querySelector('.grid')
@@ -103,7 +110,10 @@ function init() {
       }, 3000)
     }
 
-    
+    saveGame() {
+      this.gameHistory.push(newGame)
+      console.log(this.gameHistory)
+    }
 
     startNewGame() {
       newGame.start()
@@ -135,6 +145,7 @@ function init() {
 
     start() {
 
+      newGrid.stopGridAnimation()
       // Push first 3 shapes to the nextShapes array
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
@@ -161,15 +172,16 @@ function init() {
       inPlay = true
       newGrid.play()
 
-    }
-    
-    
+    }    
 
     end() {
       inPlay = false
-      // newGame = null
+      newGrid.pause()
+      clearInterval(fallInterval)
+      tetris.saveGame()
+      
+      // Reset Variables
       nextShapes = []
-      // activeShape = null
       activeShapeCells = []
       activeShapeRows = []
       fallInterval = null
@@ -178,10 +190,7 @@ function init() {
       cellClasses = []
       gridRows = []
       gridCells = []
-      clearInterval(fallInterval)
-      fallInterval = null
-      // newGrid.pause()
-      // show game over and reset board?
+
       tetris.load()
       console.log('End')
     }
@@ -233,8 +242,13 @@ function init() {
 
       const nextShapesRows = []
       let nextShapesCell
+      const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
       const nextShapesContainer = document.querySelector('.next-shapes')
       // Set border colour
+      const nextShapesTitle = document.createElement('h3')
+      nextShapesTitle.innerHTML = 'Next Shapes'
+      nextShapesTitle.id = 'next-shapes-title'
+      nextShapesWrapper.appendChild(nextShapesTitle)
       nextShapesContainer.style.border = `${this.borderWidth}px solid ${this.borderColor}`
 
       // Create x number of rows
@@ -270,7 +284,7 @@ function init() {
       let countRowsAnimated = 0
       // allGridRowsArray.for
       // Set interval to decide whether to go up or down
-      setInterval(() => {
+      animationInterval = setInterval(() => {
         // Count how many rows are animated
         countRowsAnimated = 0
         allGridRowsArray = []
@@ -283,22 +297,18 @@ function init() {
         })
         // If count rows animated = 0 
         if (countRowsAnimated === 0) {
-          const upAnimationInterval = setInterval(() => {
-            console.log(allGridRowsArray)
+          upAnimationInterval = setInterval(() => {
             if (allGridRowsArray.length > 0) {
               const nextRowUp = allGridRowsArray[allGridRowsArray.length - 1]
               nextRowUp.classList.add('animated')
               allGridRowsArray.pop()
             } else {
-              console.log('no')
               clearInterval(upAnimationInterval)
             }
           }, 75)
 
         } else {
-          console.log('**********')
-          const downAnimationInterval = setInterval(() => {
-            console.log(allGridRowsArray.length)
+          downAnimationInterval = setInterval(() => {
             if (allGridRowsArray.length > 0) {
               const nextRowDown = allGridRowsArray[0]
               nextRowDown.classList.remove('animated')
@@ -308,8 +318,19 @@ function init() {
             }
           }, 75)
         }
-      }, 1650)
+      }, 1750)
 
+    }
+
+    stopGridAnimation() {
+      clearInterval(animationInterval)
+      clearInterval(upAnimationInterval)
+      clearInterval(downAnimationInterval)
+
+      allGridRows = document.querySelectorAll('.grid-row')
+      allGridRows.forEach(row => {
+        row.classList.remove('animated')
+      })
     }
 
 
@@ -337,7 +358,7 @@ function init() {
     }
 
     pause() {
-      if (pauseButton.innerText === '| |') {
+      if (pauseButton.innerText === '| |' || (pauseButton.innerText === '>' && inPlay === false)) {
         pauseButton.innerText = '>'
         clearInterval(fallInterval)
       } else if (pauseButton.innerText === '>') {

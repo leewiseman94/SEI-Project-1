@@ -20,26 +20,6 @@ body {
   height: 100vh;
   width: auto;
 }
-
-.right-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-  padding-top: 130px;
-  margin-left: 20px;
-}
-
-#next-shapes-overlay {
-  background-color: rgba(0,0,0,0.5);
-  border-radius: 10px;
-}
-
-.next-shapes {
-  border-radius: 10px;
-}
-
-
 .grid {
   display: flex;
   flex-direction: column;
@@ -72,6 +52,7 @@ body {
 
 .controls-btn {
   padding: 10px 15px;
+  margin: 10px;
   background-color: transparent;
   color: white;
   border: 2px solid white;
@@ -80,6 +61,34 @@ body {
 
 
 /* NEXT SHAPES */
+.right-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  padding-top: 120px;
+  margin-left: 20px;
+}
+
+.next-shapes-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+#next-shapes-title {
+  color: white;
+  margin: 10px;
+}
+
+#next-shapes-overlay {
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 10px;
+}
+
+.next-shapes {
+  border-radius: 10px;
+}
+
 .next-shapes-row {
   display: flex;
   flex-direction: row;
@@ -96,7 +105,7 @@ body {
 
 /* Falling Shape */
 .active,.filled {
-   border-radius: 50px;
+  border-radius: 50px;
 }
 
 .active.red {
