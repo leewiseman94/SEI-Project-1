@@ -150,7 +150,9 @@ function init() {
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
-     
+      
+      newGrid.drawNextShapes()
+
       //Create Pause Button and add under the grid
       const controlsWrapper = document.querySelector('.controls-wrapper')
       controlsWrapper.innerHTML = ''
@@ -252,7 +254,7 @@ function init() {
       nextShapesContainer.style.border = `${this.borderWidth}px solid ${this.borderColor}`
 
       // Create x number of rows
-      for (let y = 0; y < 18; y++) {
+      for (let y = 0; y < 14; y++) {
         const nextShapesRow = document.createElement('div')
         nextShapesRow.classList.add('next-shapes-row')
         nextShapesRow.classList.add(`next-shapes-${y}`)
@@ -263,7 +265,7 @@ function init() {
       }
       // Create x number of columns per row
       nextShapesRows.forEach(row => {
-        for (let x = 0; x < 6; x++) {
+        for (let x = 0; x < 5; x++) {
           nextShapesCell = document.createElement('div')
           nextShapesCell.classList.add('next-shapes-cell')
           nextShapesCell.classList.add(`next-shapes-cell-${x}`)
@@ -333,7 +335,30 @@ function init() {
       })
     }
 
+    drawNextShapes() {
+      const nextShapesCells = document.querySelectorAll('.next-shapes-cell')
+      const nextShapesCellsArray = []
+      const activeShapeCells = []
+      nextShapesCells.forEach(cell => {
+        nextShapesCellsArray.push(cell)
+        cell.classList.remove('filled')
+        colors.forEach(color => cell.classList.remove(color))
+      })
 
+      for (let i = 0; i < nextShapes.length; i++) {
+        
+        nextShapes[i].coordinates.forEach(coordinate => {
+          const nextShapeCell = nextShapesCellsArray.filter(cell => {
+            return parseInt(cell.dataset.x) === (coordinate.x + 2) && parseInt(cell.dataset.y) === (coordinate.y + 1 + (5 * i))
+          })
+          activeShapeCells.push([nextShapeCell[0], nextShapes[i].color])
+        })
+      }
+      activeShapeCells.forEach(arr => {
+        arr[0].classList.add('filled')
+        arr[0].classList.add(arr[1])
+      })
+    }
 
     play() {
       if (inPlay) {
@@ -344,6 +369,7 @@ function init() {
         activeShape = nextShapes[0]
         nextShapes.push(new Shape())
         nextShapes.shift()
+        this.drawNextShapes()
         this.drawShape(0, 0)
 
         this.setActiveInterval()
