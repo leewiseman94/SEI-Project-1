@@ -17,6 +17,7 @@ function init() {
   let startButton
   let pauseButton
   let endGameButton
+  let playAgainButton
 
   let animationInterval
   let upAnimationInterval
@@ -80,11 +81,27 @@ function init() {
     }
 
     load() {
+      // * Right Wrapper reset
+      const rightWrapper = document.querySelector('.right-wrapper')
+      // Reset next shapes
+      const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
+      nextShapesWrapper.innerHTML = '<div id="next-shapes-overlay"><div class="next-shapes"></div></div>'
+      const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
+      nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)'
       const nextShapesContainer = document.querySelector('.next-shapes')
       nextShapesContainer.style.border = '0px'
       nextShapesContainer.innerHTML = ''
+      //Reset Scoreboard
+      const scoreboardWrapper = document.querySelector('.scoreboard-wrapper')
+      scoreboardWrapper.innerHTML = ''
+      
+      // * Center Wrapper Reset
+      // Reset Controls buttons
       const controlsWrapper = document.querySelector('.controls-wrapper')
       controlsWrapper.innerHTML = ''
+      // Reset Grid
+      const gridTextOverlay = document.querySelector('.grid-text-overlay')
+      gridTextOverlay.innerText = ''
       const mainWrapper = document.querySelector('.grid')
       mainWrapper.innerHTML = ''
       mainWrapper.style.border = '0px solid white'
@@ -116,7 +133,47 @@ function init() {
     }
 
     startNewGame() {
-      newGame.start()
+      newGrid.stopGridAnimation()
+      // Push first 3 shapes to the nextShapes array
+      nextShapes.push(new Shape())
+      nextShapes.push(new Shape())
+      nextShapes.push(new Shape())
+
+      const scoreboardWrapper = document.querySelector('.scoreboard-wrapper')
+      const scoreTitle = document.createElement('h3')
+      scoreTitle.innerText = 'Score'
+      scoreTitle.id = 'score-title'
+      scoreboardWrapper.appendChild(scoreTitle)
+      const score = document.createElement('h5')
+      score.innerText = newGame.score
+      score.id = 'current-score'
+      scoreboardWrapper.appendChild(score)
+      
+      const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
+      nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0)'
+      
+      newGrid.drawNextShapes()
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      controlsWrapper.innerHTML = ''
+
+      let countdown = 3
+      const countdownTimer = document.querySelector('.grid-text-overlay')
+      countdownTimer.innerText = countdown
+      const countdownInterval = setInterval(() => {
+        if (countdown > 1) {
+          countdown--
+          countdownTimer.innerText = countdown
+        } else {
+          countdownTimer.innerText = ''
+          clearInterval(countdownInterval)
+        }
+      }, 1000)
+
+
+      setTimeout(() => {
+        newGame.start()
+      }, 3000)
+      
     }
     
   }
@@ -144,19 +201,9 @@ function init() {
 
 
     start() {
-
-      newGrid.stopGridAnimation()
-      // Push first 3 shapes to the nextShapes array
-      nextShapes.push(new Shape())
-      nextShapes.push(new Shape())
-      nextShapes.push(new Shape())
-      
-      newGrid.drawNextShapes()
-
-      //Create Pause Button and add under the grid
       const controlsWrapper = document.querySelector('.controls-wrapper')
       controlsWrapper.innerHTML = ''
-
+      //Create Pause Button and add under the grid
       pauseButton = document.createElement('button')
       pauseButton.innerText = '| |'
       pauseButton.id = 'pause-btn'
@@ -171,16 +218,68 @@ function init() {
       endGameButton.addEventListener('click', this.end)
       controlsWrapper.appendChild(endGameButton)
 
+      document.addEventListener('keydown', handleKeyDown)
+      document.addEventListener('keyup', handleKeyUp)
+      
+
       inPlay = true
       newGrid.play()
 
-    }    
+    }   
+    
+    gameOver() {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+      inPlay = false
+      tetris.saveGame()
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      controlsWrapper.innerHTML = ''
+      const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
+      nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)'
+      //Create Play again Button and add under the grid
+      playAgainButton = document.createElement('button')
+      playAgainButton.innerText = 'Play Again?'
+      playAgainButton.id = 'play-again-btn'
+      playAgainButton.classList.add('controls-btn')
+      playAgainButton.addEventListener('click', this.end)
+      controlsWrapper.appendChild(playAgainButton)
+
+      nextShapes = []
+      newGrid.drawNextShapes()
+
+      allGridRows = document.querySelectorAll('.grid-row')
+      allGridRows.forEach(row => {
+        row.childNodes.forEach(cell => {
+          cell.classList.remove('filled')
+        })
+      })
+
+      const gridTextOverlay = document.querySelector('.grid-text-overlay')
+      // Game Over Text on grid
+      const gameOverText = document.createElement('h3')
+      gameOverText.innerText = 'GAME\nOVER'
+      gameOverText.style.fontSize = '50px'
+      gameOverText.style.textAlign = 'center'
+
+      const scoreText = document.createElement('h5')
+      scoreText.innerText = `Score: ${newGame.score}`
+      scoreText.style.fontSize = '30px'
+      scoreText.style.textAlign = 'center'
+
+
+
+      gridTextOverlay.appendChild(gameOverText)
+      gridTextOverlay.appendChild(scoreText)
+
+      console.log('End')
+    }
 
     end() {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
       inPlay = false
       newGrid.pause()
-      clearInterval(fallInterval)
-      tetris.saveGame()
+      console.log(newGrid)
       
       // Reset Variables
       nextShapes = []
@@ -265,7 +364,7 @@ function init() {
       }
       // Create x number of columns per row
       nextShapesRows.forEach(row => {
-        for (let x = 0; x < 5; x++) {
+        for (let x = 0; x < 6; x++) {
           nextShapesCell = document.createElement('div')
           nextShapesCell.classList.add('next-shapes-cell')
           nextShapesCell.classList.add(`next-shapes-cell-${x}`)
@@ -282,7 +381,13 @@ function init() {
     // ! Grid Animation
     startGridAnimation() {
       console.log('interval')
-      
+      allGridRows = document.querySelectorAll('.grid-row')
+      allGridRows.forEach(row => {
+        row.childNodes.forEach(cell => {
+          cell.classList.remove('filled')
+        })
+      })
+
       let countRowsAnimated = 0
       // allGridRowsArray.for
       // Set interval to decide whether to go up or down
@@ -314,6 +419,7 @@ function init() {
             if (allGridRowsArray.length > 0) {
               const nextRowDown = allGridRowsArray[0]
               nextRowDown.classList.remove('animated')
+              nextRowDown.classList.remove('filled')
               allGridRowsArray.shift()
             } else {
               clearInterval(downAnimationInterval)
@@ -349,7 +455,7 @@ function init() {
         
         nextShapes[i].coordinates.forEach(coordinate => {
           const nextShapeCell = nextShapesCellsArray.filter(cell => {
-            return parseInt(cell.dataset.x) === (coordinate.x + 2) && parseInt(cell.dataset.y) === (coordinate.y + 1 + (5 * i))
+            return parseInt(cell.dataset.x) === (coordinate.x + 3) && parseInt(cell.dataset.y) === (coordinate.y + 1 + (5 * i))
           })
           activeShapeCells.push([nextShapeCell[0], nextShapes[i].color])
         })
@@ -362,8 +468,6 @@ function init() {
 
     play() {
       if (inPlay) {
-        // newGame = new Game('hard')
-
         // Set active shape and draw on the grid and add
         //draw next shape and then start a loop for the shape to fall
         activeShape = nextShapes[0]
@@ -371,8 +475,15 @@ function init() {
         nextShapes.shift()
         this.drawNextShapes()
         this.drawShape(0, 0)
-
-        this.setActiveInterval()
+        console.log(this.drawShape(0, 0))
+        if (this.drawShape(0, 0)) {
+          console.log('go')
+          this.setActiveInterval()
+        } else {
+          this.stopActiveInterval()
+          newGame.gameOver()
+        }
+        
       }
     }
 
@@ -383,11 +494,19 @@ function init() {
       }, this.gameSpeed)
     }
 
+    stopActiveInterval() {
+      clearInterval(fallInterval)
+    }
+
     pause() {
       if (pauseButton.innerText === '| |' || (pauseButton.innerText === '>' && inPlay === false)) {
+        document.removeEventListener('keydown', handleKeyDown)
+        document.removeEventListener('keyup', handleKeyUp)
         pauseButton.innerText = '>'
-        clearInterval(fallInterval)
+        newGrid.stopActiveInterval()
       } else if (pauseButton.innerText === '>') {
+        document.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('keyup', handleKeyUp)
         pauseButton.innerText = '| |'
         newGrid.setActiveInterval()
       }
@@ -399,26 +518,31 @@ function init() {
       activeShape.coordinates.forEach(coord => {
         nextActiveShapeCells.push({ x: (coord.x + activeShape.location.x), y: (coord.y + activeShape.location.y) })
       })
-      
 
-      // * Draw next shape that it is waiting onto the grid and remove from nextShapes and then add another shape to the nextShapes array
-      // Move shape left or right
-      activeShape.location.x = activeShape.location.x + across
-      // Drop shape down one
-      activeShape.location.y = activeShape.location.y + down
-      activeShapeCells = []
-      // For each ordinate of the shape, get the cell it should be in - and push to an array for later use
-      activeShape.coordinates.forEach(coordinate => {
-        const activeCell = gridCells.filter(cell => {
-          return parseInt(cell.dataset.x) === (coordinate.x + activeShape.location.x) && parseInt(cell.dataset.y) === (coordinate.y + activeShape.location.y)
+      if (this.collide()) {
+        allGridRows = document.querySelectorAll('.grid-row')
+        return false
+      } else {
+        // * Draw next shape that it is waiting onto the grid and remove from nextShapes and then add another shape to the nextShapes array
+        // Move shape left or right
+        activeShape.location.x = activeShape.location.x + across
+        // Drop shape down one
+        activeShape.location.y = activeShape.location.y + down
+        activeShapeCells = []
+        // For each ordinate of the shape, get the cell it should be in - and push to an array for later use
+        activeShape.coordinates.forEach(coordinate => {
+          const activeCell = gridCells.filter(cell => {
+            return parseInt(cell.dataset.x) === (coordinate.x + activeShape.location.x) && parseInt(cell.dataset.y) === (coordinate.y + activeShape.location.y)
+          })
+          activeShapeCells.push(activeCell[0])
         })
-        activeShapeCells.push(activeCell[0])
-      })
-      // Add required classes (to fill the correct cells for the shape)
-      activeShapeCells.forEach(cell => {
-        cell.classList.add('active')
-        cell.classList.add(`${activeShape.color}`)
-      })
+        // Add required classes (to fill the correct cells for the shape)
+        activeShapeCells.forEach(cell => {
+          cell.classList.add('active')
+          cell.classList.add(`${activeShape.color}`)
+        })
+        return true
+      }
     }
 
     removeShape() {
@@ -432,6 +556,8 @@ function init() {
     }
 
     moveShape(down, across) {
+      //  Define score element
+      const currentScore = document.querySelector('#current-score')
       // Will need conditions to check if hits wall or floor or other shape
       // If wall carry on
       // If floor or other shape then call change class to filled and call play function for next shape
@@ -450,9 +576,25 @@ function init() {
         // If it was moving down then stop // If it was moving across then continue
         if (down === 1) {
           this.stopShape()
+          newGame.score += 10
+          currentScore.innerText = newGame.score
           this.checkLine()
 
-          if (this.checkLine().length > 0) {
+          const rowCount = this.checkLine().length
+          console.log(rowCount)
+          if (rowCount > 0) {
+
+            if (rowCount === 1) {
+              newGame.score += 100
+            } else if (rowCount === 2) {
+              newGame.score += 200
+            } else if (rowCount === 3) {
+              newGame.score += 400
+            } else if (rowCount === 4) {
+              newGame.score += 800
+            }
+            currentScore.innerText = newGame.score            
+
             this.checkLine().forEach(row => {
               this.removeLines(row)
               this.dropLinesAbove(row)
@@ -573,7 +715,6 @@ function init() {
           activeShapeRows.push(activeCell.parentNode)
         } 
       })
-
       const filledRows = []
 
       activeShapeRows.forEach(activeRow => {
@@ -592,6 +733,9 @@ function init() {
     }
 
     removeLines(row) {
+
+      
+
       row.childNodes.forEach(rowCell => {
         // Remove filled/active and the color class and remove all from filledCells array
         rowCell.classList.remove('filled')
@@ -687,8 +831,7 @@ function init() {
     }
   }
 
-  document.addEventListener('keydown', handleKeyDown)
-  document.addEventListener('keyup', handleKeyUp)
+  
 
   tetris = new Tetris()
   tetris.load()
