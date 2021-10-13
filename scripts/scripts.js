@@ -2,6 +2,7 @@
 function init() {
 
   // ! ********** VARIABLES **********
+  let tetris = null
   let inPlay = false
   let newGame
   let newGrid
@@ -13,14 +14,19 @@ function init() {
   let nextActiveShapeCells = []
   let filledCells = []
   let cellClasses = []
+  let startButton
+  let pauseButton
+  let endGameButton
 
   // * Grid Variables
   let gridRows = []
   let gridCells = []
   let grid = document.querySelector('.grid')
+  let allGridRows = document.querySelectorAll('.grid-row')
+  let allGridRowsArray
 
   // Set shape colors
-  const colors = ['red', 'blue', 'green', 'orange', 'purple']
+  const colors = ['red', 'grey', 'green', 'orange', 'purple']
   //   Set all 7 shapes and push to shapes array
   const shapes = []
   const square = {
@@ -64,12 +70,46 @@ function init() {
   // ! ********** TETRIS **********
   // * All games -> Saved highscores etc
 
-  // class Tetris {
-  //   constructor() {
-  //     this.gameHistory = []
-  //   }
+  class Tetris {
+    constructor() {
+      this.gameHistory = []
+    }
+
+    load() {
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      controlsWrapper.innerHTML = ''
+      const mainWrapper = document.querySelector('.grid')
+      mainWrapper.innerHTML = ''
+      mainWrapper.style.border = '0px solid white'
+      const loadingText = document.createElement('h2')
+      loadingText.innerText = 'LOADING'
+      loadingText.style.color = 'white'
+      const loadingIcon = document.createElement('img')
+      loadingIcon.src = './images/loading.gif'
+      mainWrapper.appendChild(loadingIcon)
+      mainWrapper.appendChild(loadingText)
+
+      setTimeout(() => {
+        startButton = document.createElement('button')
+        startButton.innerText = 'Start Game'
+        startButton.classList.add('controls-btn')
+        startButton.id = 'start-btn'
+        startButton.addEventListener('click', this.startNewGame)
+        controlsWrapper.appendChild(startButton)
+
+        newGame = new Game('hard')
+        newGame.resetGrid()
+        newGrid.startGridAnimation()
+      }, 3000)
+    }
+
     
-  // }
+
+    startNewGame() {
+      newGame.start()
+    }
+    
+  }
   
 
   // ! ********** GAME **********
@@ -82,30 +122,54 @@ function init() {
       this.difficulty = difficulty
     }
 
-    setGrid() {
+    resetGrid() {
       // Remove any previous grid
       grid.innerHTML = ''
       // Create new grid
       console.log('new game ->', newGame)
-      newGrid = new Grid()
+      newGrid = new Grid(20, 10, 'white')
       newGrid.createGrid()
-      grid = document.querySelector('.grid')     
+      grid = document.querySelector('.grid')   
     }
 
+
     start() {
+
       // Push first 3 shapes to the nextShapes array
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
+     
+      //Create Pause Button and add under the grid
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      controlsWrapper.innerHTML = ''
+
+      pauseButton = document.createElement('button')
+      pauseButton.innerText = '| |'
+      pauseButton.id = 'pause-btn'
+      pauseButton.classList.add('controls-btn')
+      pauseButton.addEventListener('click', newGrid.pause)
+      controlsWrapper.appendChild(pauseButton)
+
+      endGameButton = document.createElement('button')
+      endGameButton.innerText = 'End Game'
+      endGameButton.id = 'end-game-btn'
+      endGameButton.classList.add('controls-btn')
+      endGameButton.addEventListener('click', this.end)
+      controlsWrapper.appendChild(endGameButton)
+
       inPlay = true
       newGrid.play()
-    }    
+
+    }
+    
+    
 
     end() {
       inPlay = false
       // newGame = null
       nextShapes = []
-      activeShape = null
+      // activeShape = null
       activeShapeCells = []
       activeShapeRows = []
       fallInterval = null
@@ -115,14 +179,14 @@ function init() {
       gridRows = []
       gridCells = []
       clearInterval(fallInterval)
+      fallInterval = null
       // newGrid.pause()
-      console.log(fallInterval)
       // show game over and reset board?
+      tetris.load()
       console.log('End')
     }
 
   }
-
 
   // ! ********** GRID **********
   // * Methods -> createNewGrid, drawNextShape, moveActiveShape, collide
@@ -130,13 +194,14 @@ function init() {
   //   Grid size will depend on game difficulty
 
   class Grid {
-    constructor() {
-      this.rows = 20
-      this.cols = 10
+    constructor(rows = 20, cols = 10, color = 'white') {
+      this.rows = rows
+      this.cols = cols
       this.cellWidth = newGame.difficulty === 'easy' || newGame.difficulty === 'medium' ? 25 : 35
       this.borderWidth = 4
-      this.borderColor = 'green'
+      this.borderColor = color
       this.gameSpeed = newGame.difficulty === 'easy' ? 2000 : newGame.difficulty === 'medium' ? 1000 : 500
+      
     }
 
     createGrid() {
@@ -165,34 +230,120 @@ function init() {
           gridCells.push(gridCell)
         }   
       })
+
+      const nextShapesRows = []
+      let nextShapesCell
+      const nextShapesContainer = document.querySelector('.next-shapes')
+      // Set border colour
+      nextShapesContainer.style.border = `${this.borderWidth}px solid ${this.borderColor}`
+
+      // Create x number of rows
+      for (let y = 0; y < 18; y++) {
+        const nextShapesRow = document.createElement('div')
+        nextShapesRow.classList.add('next-shapes-row')
+        nextShapesRow.classList.add(`next-shapes-${y}`)
+        nextShapesRow.dataset.row = y
+        nextShapesRow.style.width = `${this.cellWidth}px)`
+        nextShapesContainer.appendChild(nextShapesRow)
+        nextShapesRows.push(nextShapesRow)
+      }
+      // Create x number of columns per row
+      nextShapesRows.forEach(row => {
+        for (let x = 0; x < 6; x++) {
+          nextShapesCell = document.createElement('div')
+          nextShapesCell.classList.add('next-shapes-cell')
+          nextShapesCell.classList.add(`next-shapes-cell-${x}`)
+          nextShapesCell.dataset.x = x
+          nextShapesCell.dataset.y = row.dataset.row
+          nextShapesCell.style.width = `${this.cellWidth}px)`
+          row.appendChild(nextShapesCell)
+          // gridCells.push(nextShapesCell)
+        }   
+      })  
+
     }
+
+    // ! Grid Animation
+    startGridAnimation() {
+      console.log('interval')
+      
+      let countRowsAnimated = 0
+      // allGridRowsArray.for
+      // Set interval to decide whether to go up or down
+      setInterval(() => {
+        // Count how many rows are animated
+        countRowsAnimated = 0
+        allGridRowsArray = []
+        allGridRows = document.querySelectorAll('.grid-row')
+        allGridRows.forEach(row => {
+          if (row.classList.contains('animated')) {
+            countRowsAnimated += 1
+          }
+          allGridRowsArray.push(row)
+        })
+        // If count rows animated = 0 
+        if (countRowsAnimated === 0) {
+          const upAnimationInterval = setInterval(() => {
+            console.log(allGridRowsArray)
+            if (allGridRowsArray.length > 0) {
+              const nextRowUp = allGridRowsArray[allGridRowsArray.length - 1]
+              nextRowUp.classList.add('animated')
+              allGridRowsArray.pop()
+            } else {
+              console.log('no')
+              clearInterval(upAnimationInterval)
+            }
+          }, 75)
+
+        } else {
+          console.log('**********')
+          const downAnimationInterval = setInterval(() => {
+            console.log(allGridRowsArray.length)
+            if (allGridRowsArray.length > 0) {
+              const nextRowDown = allGridRowsArray[0]
+              nextRowDown.classList.remove('animated')
+              allGridRowsArray.shift()
+            } else {
+              clearInterval(downAnimationInterval)
+            }
+          }, 75)
+        }
+      }, 1650)
+
+    }
+
+
 
     play() {
       if (inPlay) {
+        // newGame = new Game('hard')
+
         // Set active shape and draw on the grid and add
         //draw next shape and then start a loop for the shape to fall
         activeShape = nextShapes[0]
         nextShapes.push(new Shape())
         nextShapes.shift()
         this.drawShape(0, 0)
-        
-        fallInterval = setInterval(() => {
-          // Move shape down 1 on the interval time
-          this.moveShape(1, 0, 'active')
-        }, this.gameSpeed)
+
+        this.setActiveInterval()
       }
-      
+    }
+
+    setActiveInterval() {
+      fallInterval = setInterval(() => {
+        // Move shape down 1 on the interval time
+        this.moveShape(1, 0, 'active')
+      }, this.gameSpeed)
     }
 
     pause() {
-      // pause interval?
-      clearInterval(fallInterval)
-    }
-
-    continue() {
-      fallInterval = setInterval(() => {
-        this.moveShape(1, 0, 'active')
-      }, this.gameSpeed)
+      if (pauseButton.innerText === '| |') {
+        pauseButton.innerText = '>'
+        clearInterval(fallInterval)
+      } else if (pauseButton.innerText === '>') {
+        pauseButton.innerText = '| |'
+        newGrid.setActiveInterval()
+      }
     }
 
     drawShape(down, across) {
@@ -202,10 +353,6 @@ function init() {
         nextActiveShapeCells.push({ x: (coord.x + activeShape.location.x), y: (coord.y + activeShape.location.y) })
       })
       
-      // if (this.collide()) {
-      //   newGame.end()
-      // }
-
 
       // * Draw next shape that it is waiting onto the grid and remove from nextShapes and then add another shape to the nextShapes array
       // Move shape left or right
@@ -264,7 +411,7 @@ function init() {
               this.dropLinesAbove(row)
             }) 
           }
-          console.log('here as well')
+
           this.play()
         }
 
@@ -470,52 +617,20 @@ function init() {
 
   // ! ****************** STARTING GAME AND CALLING FUNCTIONS ******************
 
-  // const tetris = new Tetris()
-
-
-  function startNewGame() {
-    newGame = new Game('hard')
-    newGame.start()
-  }
-
-  function pauseGame() {
-    if (pauseBtn.innerText === 'Pause') {
-      newGrid.pause()
-      pauseBtn.innerText = 'Continue'
-    } else if (pauseBtn.innerText === 'Continue') {
-      newGrid.continue()
-      pauseBtn.innerText = 'Pause'
-    }
-  }
-
-  function endGame() {
-    newGame.end()
-    newGame.setGrid()
-  }
-
-  const startBtn = document.querySelector('#start-btn')
-  startBtn.addEventListener('click', startNewGame)
-
-  const pauseBtn = document.querySelector('#pause-btn')
-  pauseBtn.addEventListener('click', pauseGame)
-
-  const endGameBtn = document.querySelector('#end-game-btn')
-  endGameBtn.addEventListener('click', endGame)
-
   function handleKeyDown(event) {
-    if (pauseBtn.innerText === 'Pause') {
-      const key = event.keyCode //store key in a variable
-      if (key === 39 ) { 
-        // if the right arrow is pressed and the cat is not on the right edge
-        newGrid.moveShape(0, 1)
-      } else if (key === 37) {
-        newGrid.moveShape(0, -1)
-      } else if (key === 38) {
-        newGrid.rotateShape()
-      } else if (key === 40) {
-        newGrid.speedUp()
-      }
-    }   
+    // if (pauseBtn.innerText === 'Pause') {
+    const key = event.keyCode //store key in a variable
+    if (key === 39 ) { 
+      // if the right arrow is pressed and the cat is not on the right edge
+      newGrid.moveShape(0, 1)
+    } else if (key === 37) {
+      newGrid.moveShape(0, -1)
+    } else if (key === 38) {
+      newGrid.rotateShape()
+    } else if (key === 40) {
+      newGrid.speedUp()
+    }
+    // }   
   }
 
   function handleKeyUp(event) {
@@ -528,9 +643,8 @@ function init() {
   document.addEventListener('keydown', handleKeyDown)
   document.addEventListener('keyup', handleKeyUp)
 
-  newGame = new Game('hard')
-  newGame.setGrid()
-
+  tetris = new Tetris()
+  tetris.load()
 
 }
 window.addEventListener('DOMContentLoaded', init)
