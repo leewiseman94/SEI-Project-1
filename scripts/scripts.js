@@ -82,7 +82,6 @@ function init() {
 
     load() {
       // * Right Wrapper reset
-      const rightWrapper = document.querySelector('.right-wrapper')
       // Reset next shapes
       const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
       nextShapesWrapper.innerHTML = '<div id="next-shapes-overlay"><div class="next-shapes"></div></div>'
@@ -139,6 +138,7 @@ function init() {
       nextShapes.push(new Shape())
       nextShapes.push(new Shape())
 
+      // Create scoreboard
       const scoreboardWrapper = document.querySelector('.scoreboard-wrapper')
       const scoreTitle = document.createElement('h3')
       scoreTitle.innerText = 'Score'
@@ -392,6 +392,9 @@ function init() {
       // allGridRowsArray.for
       // Set interval to decide whether to go up or down
       animationInterval = setInterval(() => {
+        const randomColorIndex = Math.floor(Math.random() * colors.length)
+        const randomColor = colors[randomColorIndex]
+        // const animatedRows = document.querySelectorAll('.animated')
         // Count how many rows are animated
         countRowsAnimated = 0
         allGridRowsArray = []
@@ -408,6 +411,8 @@ function init() {
             if (allGridRowsArray.length > 0) {
               const nextRowUp = allGridRowsArray[allGridRowsArray.length - 1]
               nextRowUp.classList.add('animated')
+              nextRowUp.classList.add(randomColor)
+              // nextRowUp.style.backgroundColor = randomColor
               allGridRowsArray.pop()
             } else {
               clearInterval(upAnimationInterval)
@@ -420,6 +425,9 @@ function init() {
               const nextRowDown = allGridRowsArray[0]
               nextRowDown.classList.remove('animated')
               nextRowDown.classList.remove('filled')
+              colors.forEach(color => nextRowDown.classList.remove(color))
+              
+              // nextRowDown.style.backgroundColor = 'transparent'
               allGridRowsArray.shift()
             } else {
               clearInterval(downAnimationInterval)
@@ -476,6 +484,7 @@ function init() {
         this.drawNextShapes()
         this.drawShape(0, 0)
         console.log(this.drawShape(0, 0))
+
         if (this.drawShape(0, 0)) {
           console.log('go')
           this.setActiveInterval()
@@ -519,7 +528,8 @@ function init() {
         nextActiveShapeCells.push({ x: (coord.x + activeShape.location.x), y: (coord.y + activeShape.location.y) })
       })
 
-      if (this.collide()) {
+      if (this.collide() && across === 0) {
+        // console.log('collide true')
         allGridRows = document.querySelectorAll('.grid-row')
         return false
       } else {
@@ -567,10 +577,12 @@ function init() {
       })
 
       if (!this.collide()) {
+        console.log('collide false')
         // If doesn't collide
         this.removeShape()
         this.drawShape(down, across)
       } else {
+        console.log('collide true')
         // If collides
         // Find out if shape has filled a line
         // If it was moving down then stop // If it was moving across then continue
@@ -640,17 +652,21 @@ function init() {
       if (activeShape.name !== 'square') {
         if (hitLeftWall) {
           if (hitLeftWallByTwo) {
+            console.log('left by two')
             activeShape.coordinates = rotatedShapeCoordinates
             this.moveShape(0, 2)
           } else {
+            console.log('left by one')
             activeShape.coordinates = rotatedShapeCoordinates
             this.moveShape(0, 1)
           }
         } else if (hitRightWall) {
           if (hitRightWallByTwo) {
+            console.log('right by two')
             activeShape.coordinates = rotatedShapeCoordinates
             this.moveShape(0, -2)
           } else {
+            console.log('right by one')
             activeShape.coordinates = rotatedShapeCoordinates
             this.moveShape(0, -1)
           }

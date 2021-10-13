@@ -132,7 +132,23 @@ main {
   width: 20px;
 }
 
+/* Scoreboard */
+.scoreboard-wrapper {
+  margin: 20px 0;
+}
 
+#score-title {
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+#current-score {
+  color: white;
+  text-align: center;
+  font-size: 24px;
+  margin: 10px 0;
+}
 
 
 /* Falling Shape */
@@ -172,8 +188,20 @@ main {
   background-color: #87077B;
 }
 
-.animated {
-  background-color: black;
+.animated.red {
+  background-color: #C70039;
+}
+.animated.grey {
+  background-color: #D2D2D2;
+}
+.animated.green {
+  background-color: #DAF7A6;
+}
+.animated.orange {
+  background-color: #FF5733;
+}
+.animated.purple {
+  background-color: #87077B;
 }
 
 
