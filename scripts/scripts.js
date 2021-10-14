@@ -77,10 +77,13 @@ function init() {
 
   class Tetris {
     constructor() {
-      this.gameHistory = []
+      this.highscore = localStorage.highscore ? parseInt(localStorage.highscore) : 0
+      this.highscoreTime
     }
 
     load() {
+      // Load Game history
+
       // * Right Wrapper reset
       // Reset next shapes
       const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
@@ -104,6 +107,7 @@ function init() {
       const mainWrapper = document.querySelector('.grid')
       mainWrapper.innerHTML = ''
       mainWrapper.style.border = '0px solid white'
+      // Set Loading
       const loadingText = document.createElement('h2')
       loadingText.innerText = 'LOADING'
       loadingText.style.color = 'white'
@@ -127,8 +131,10 @@ function init() {
     }
 
     saveGame() {
-      this.gameHistory.push(newGame)
-      console.log(this.gameHistory)
+      if (newGame.score > this.highscore) {
+        this.highscore = newGame.score
+        localStorage.setItem('highscore', this.highscore)
+      }
     }
 
     startNewGame() {
@@ -483,10 +489,8 @@ function init() {
         nextShapes.shift()
         this.drawNextShapes()
         this.drawShape(0, 0)
-        console.log(this.drawShape(0, 0))
 
         if (this.drawShape(0, 0)) {
-          console.log('go')
           this.setActiveInterval()
         } else {
           this.stopActiveInterval()
@@ -577,12 +581,10 @@ function init() {
       })
 
       if (!this.collide()) {
-        console.log('collide false')
         // If doesn't collide
         this.removeShape()
         this.drawShape(down, across)
       } else {
-        console.log('collide true')
         // If collides
         // Find out if shape has filled a line
         // If it was moving down then stop // If it was moving across then continue
@@ -606,13 +608,13 @@ function init() {
               newGame.score += 800
             }
             currentScore.innerText = newGame.score            
-
-            this.checkLine().forEach(row => {
+            console.log(this.checkLine())
+            this.checkLine().reverse().forEach(row => {
               this.removeLines(row)
               this.dropLinesAbove(row)
             }) 
           }
-
+          
           this.play()
         }
 
@@ -749,9 +751,6 @@ function init() {
     }
 
     removeLines(row) {
-
-      
-
       row.childNodes.forEach(rowCell => {
         // Remove filled/active and the color class and remove all from filledCells array
         rowCell.classList.remove('filled')
@@ -768,9 +767,16 @@ function init() {
 
     dropLinesAbove(row) {
       const coordinatesUnderneath = []
+      const allGridCells = document.querySelectorAll('.grid-cell')
+      const gridCellsArray = []
+      allGridCells.forEach(cell => gridCellsArray.push(cell))
+
       // For each cell above current row - move down 1 place / remove class and add to one below
-      gridCells.reverse().forEach(cell => {
+      gridCellsArray.reverse().forEach(cell => {
+        console.log(cell)
+        console.log(cell.dataset.y + '<' + row.dataset.row)
         if (parseInt(cell.dataset.y) < parseInt(row.dataset.row)) {
+          console.log(cell)
           // Get current cell classes
           cellClasses = []
           cell.classList.forEach(classItem => {
@@ -790,7 +796,7 @@ function init() {
       })
 
       coordinatesUnderneath.forEach(item => {
-        gridCells.forEach(cell => {
+        gridCellsArray.forEach(cell => {
           if (item.x === parseInt(cell.dataset.x) && item.y === parseInt(cell.dataset.y)) {
             item.classes.forEach(className => {
               cell.classList.add(className)
