@@ -87,6 +87,8 @@ function init() {
       // * Left Wrapper 
       const highscoreWrapper = document.querySelector('.highscore-wrapper')
       highscoreWrapper.innerHTML = ''
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      controlsWrapper.innerHTML = ''
       // * Right Wrapper reset
       // Reset next shapes
       const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
@@ -102,8 +104,8 @@ function init() {
       
       // * Center Wrapper Reset
       // Reset Controls buttons
-      const controlsWrapper = document.querySelector('.controls-wrapper')
-      controlsWrapper.innerHTML = ''
+      const buttonsWrapper = document.querySelector('.buttons-wrapper')
+      buttonsWrapper.innerHTML = ''
       // Reset Grid
       const gridTextOverlay = document.querySelector('.grid-text-overlay')
       gridTextOverlay.innerText = ''
@@ -125,7 +127,7 @@ function init() {
         startButton.classList.add('controls-btn')
         startButton.id = 'start-btn'
         startButton.addEventListener('click', this.startNewGame)
-        controlsWrapper.appendChild(startButton)
+        buttonsWrapper.appendChild(startButton)
 
         newGame = new Game('hard')
         newGame.resetGrid()
@@ -162,8 +164,8 @@ function init() {
       nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0)'
       
       newGrid.drawNextShapes()
-      const controlsWrapper = document.querySelector('.controls-wrapper')
-      controlsWrapper.innerHTML = ''
+      const buttonsWrapper = document.querySelector('.buttons-wrapper')
+      buttonsWrapper.innerHTML = ''
 
       let countdown = 3
       const countdownTimer = document.querySelector('.grid-text-overlay')
@@ -209,22 +211,22 @@ function init() {
     }
 
     start() {
-      const controlsWrapper = document.querySelector('.controls-wrapper')
-      controlsWrapper.innerHTML = ''
+      const buttonsWrapper = document.querySelector('.buttons-wrapper')
+      buttonsWrapper.innerHTML = ''
       //Create Pause Button and add underneath the grid
       pauseButton = document.createElement('button')
       pauseButton.innerText = '| |'
       pauseButton.id = 'pause-btn'
       pauseButton.classList.add('controls-btn')
       pauseButton.addEventListener('click', newGame.pause)
-      controlsWrapper.appendChild(pauseButton)
+      buttonsWrapper.appendChild(pauseButton)
       // Create End Game button and add underneath the grid
       endGameButton = document.createElement('button')
       endGameButton.innerText = 'End Game'
       endGameButton.id = 'end-game-btn'
       endGameButton.classList.add('controls-btn')
       endGameButton.addEventListener('click', this.end)
-      controlsWrapper.appendChild(endGameButton)
+      buttonsWrapper.appendChild(endGameButton)
       //Add Event listeners to the pause and end game buttons
       document.addEventListener('keydown', handleKeyDown)
       document.addEventListener('keyup', handleKeyUp)
@@ -252,8 +254,8 @@ function init() {
       document.removeEventListener('keyup', handleKeyUp)
       inPlay = false
       tetris.saveGame()
-      const controlsWrapper = document.querySelector('.controls-wrapper')
-      controlsWrapper.innerHTML = ''
+      const buttonsWrapper = document.querySelector('.buttons-wrapper')
+      buttonsWrapper.innerHTML = ''
       const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
       nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)'
       //Create Play again Button and add under the grid
@@ -262,7 +264,7 @@ function init() {
       playAgainButton.id = 'play-again-btn'
       playAgainButton.classList.add('controls-btn')
       playAgainButton.addEventListener('click', this.end)
-      controlsWrapper.appendChild(playAgainButton)
+      buttonsWrapper.appendChild(playAgainButton)
 
       nextShapes = []
       newGrid.drawNextShapes()
@@ -327,6 +329,65 @@ function init() {
     }
 
     createGrid() {
+
+      //Set Next shapes grid and title
+      const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
+      const nextShapesContainer = document.querySelector('.next-shapes')
+      const nextShapesTitle = document.createElement('h3')
+      nextShapesTitle.innerText = 'Next Shapes'
+      nextShapesTitle.id = 'next-shapes-title'
+      nextShapesWrapper.appendChild(nextShapesTitle)
+      nextShapesContainer.style.border = `${this.borderWidth}px solid ${this.borderColor}`
+      //Set Highscore and title
+      const highscoreWrapper = document.querySelector('.highscore-wrapper')
+      const highscoreTitle = document.createElement('h3')
+      highscoreTitle.innerText = 'Highscore'
+      highscoreTitle.id = 'highscore-title'
+      highscoreWrapper.appendChild(highscoreTitle)
+      const highscore = document.createElement('h5')
+      highscore.innerText = tetris.highscore
+      highscore.id = 'highscore'
+      highscoreWrapper.appendChild(highscore)
+      // Set left wrapper controls 
+      const controlsWrapper = document.querySelector('.controls-wrapper')
+      const controlsTitle = document.createElement('h3')
+      controlsTitle.innerText = 'Game Controls'
+      controlsTitle.id = 'controls-title'
+      controlsWrapper.appendChild(controlsTitle)
+      // Create images and title and add to game controls wrapper
+      const upArrow = document.createElement('img')
+      const downArrow = document.createElement('img')
+      const leftArrow = document.createElement('img')
+      const rightArrow = document.createElement('img')
+      const rotate = document.createElement('h5')
+      const accelerate = document.createElement('h5')
+      const moveLeft = document.createElement('h5')
+      const moveRight = document.createElement('h5')
+      rotate.innerText = 'Rotate'
+      accelerate.innerText = 'Accelerate'
+      moveLeft.innerText = 'Move Left'
+      moveRight.innerText = 'Move Right'
+      rotate.classList.add('controls-action')
+      accelerate.classList.add('controls-action')
+      moveLeft.classList.add('controls-action')
+      moveRight.classList.add('controls-action')
+      upArrow.src = './images/up-arrow.png'
+      downArrow.src = './images/down-arrow.png'
+      leftArrow.src = './images/left-arrow.png'
+      rightArrow.src = './images/right-arrow.png'
+      upArrow.classList.add('controls-img')
+      downArrow.classList.add('controls-img')
+      leftArrow.classList.add('controls-img')
+      rightArrow.classList.add('controls-img')
+      controlsWrapper.appendChild(upArrow)
+      controlsWrapper.appendChild(rotate)
+      controlsWrapper.appendChild(downArrow)
+      controlsWrapper.appendChild(accelerate)
+      controlsWrapper.appendChild(leftArrow)
+      controlsWrapper.appendChild(moveLeft)
+      controlsWrapper.appendChild(rightArrow)
+      controlsWrapper.appendChild(moveRight)
+
       // Set border colour
       grid.style.border = `${this.borderWidth}px solid ${this.borderColor}`
       // Create x number of rows
@@ -356,23 +417,7 @@ function init() {
       const nextShapesRows = []
       //Set Next shapes grid and title
       let nextShapesCell
-      const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
-      const nextShapesContainer = document.querySelector('.next-shapes')
-      const nextShapesTitle = document.createElement('h3')
-      nextShapesTitle.innerText = 'Next Shapes'
-      nextShapesTitle.id = 'next-shapes-title'
-      nextShapesWrapper.appendChild(nextShapesTitle)
-      nextShapesContainer.style.border = `${this.borderWidth}px solid ${this.borderColor}`
-      //Set Next shapes grid and title
-      const highscoreWrapper = document.querySelector('.highscore-wrapper')
-      const highscoreTitle = document.createElement('h3')
-      highscoreTitle.innerText = 'Highscore'
-      highscoreTitle.id = 'highscore-title'
-      highscoreWrapper.appendChild(highscoreTitle)
-      const highscore = document.createElement('h5')
-      highscore.innerText = tetris.highscore
-      highscore.id = 'highscore'
-      highscoreWrapper.appendChild(highscore)
+
       // Create x number of rows
       for (let y = 0; y < 14; y++) {
         const nextShapesRow = document.createElement('div')
@@ -593,9 +638,15 @@ function init() {
           filledRows.push(activeRow)
         }
       })
-      const sortedFilledRows = filledRows.sort()
-      console.log(filledRows)
-      console.log(sortedFilledRows)
+      filledRows.sort((a, b) => {
+        if (a.dataset.row > b.dataset.row) {
+          return 1
+        } else if (b.dataset.row > a.dataset.row) {
+          return -1
+        } else {
+          return 0
+        }
+      })
       return filledRows
     }
 
@@ -707,7 +758,6 @@ function init() {
               newGrid.dropLinesAbove(row)
             }) 
           }
-          
           newGrid.play()
         }
 
