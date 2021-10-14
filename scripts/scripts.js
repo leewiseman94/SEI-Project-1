@@ -253,6 +253,10 @@ function init() {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
       inPlay = false
+      let newHighscore = false
+      if (this.score > tetris.highscore) {
+        newHighscore = true
+      }
       tetris.saveGame()
       const buttonsWrapper = document.querySelector('.buttons-wrapper')
       buttonsWrapper.innerHTML = ''
@@ -283,12 +287,20 @@ function init() {
       gameOverText.style.fontSize = '50px'
       gameOverText.style.textAlign = 'center'
 
+      const highscoreText = document.createElement('h5')
+      highscoreText.innerText = `*** NEW HIGHSCORE ***`
+      highscoreText.style.fontSize = '40px'
+      highscoreText.style.textAlign = 'center'
+
       const scoreText = document.createElement('h5')
       scoreText.innerText = `Score: ${newGame.score}`
       scoreText.style.fontSize = '30px'
       scoreText.style.textAlign = 'center'
 
       gridTextOverlay.appendChild(gameOverText)
+      // if (newHighscore === true) {
+      //   gridTextOverlay.appendChild(highscoreText)
+      // }
       gridTextOverlay.appendChild(scoreText)
     }
 
