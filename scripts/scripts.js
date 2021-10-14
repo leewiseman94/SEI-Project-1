@@ -1,4 +1,3 @@
-
 function init() {
 
   // ! ********** VARIABLES **********
@@ -19,6 +18,7 @@ function init() {
   let pauseButton
   let endGameButton
   let playAgainButton
+  let rowsBroken = 0
 
   let animationInterval
   let upAnimationInterval
@@ -101,6 +101,9 @@ function init() {
       //Reset Scoreboard
       const scoreboardWrapper = document.querySelector('.scoreboard-wrapper')
       scoreboardWrapper.innerHTML = ''
+      // Reset the level wrapper
+      const levelWrapper = document.querySelector('.level-wrapper')
+      levelWrapper.innerHTML = ''
       
       // * Center Wrapper Reset
       // Reset Controls buttons
@@ -112,6 +115,7 @@ function init() {
       const mainWrapper = document.querySelector('.grid')
       mainWrapper.innerHTML = ''
       mainWrapper.style.border = '0px solid white'
+      mainWrapper.style.backgroundColor = 'transparent'
       // Set Loading
       const loadingText = document.createElement('h2')
       loadingText.innerText = 'LOADING'
@@ -128,6 +132,7 @@ function init() {
         startButton.id = 'start-btn'
         startButton.addEventListener('click', this.startNewGame)
         buttonsWrapper.appendChild(startButton)
+        mainWrapper.style.backgroundColor = 'black'
 
         newGame = new Game('hard')
         newGame.resetGrid()
@@ -159,6 +164,16 @@ function init() {
       score.innerText = newGame.score
       score.id = 'current-score'
       scoreboardWrapper.appendChild(score)
+      // Create levels container
+      const levelWrapper = document.querySelector('.level-wrapper')
+      const levelTitle = document.createElement('h3')
+      levelTitle.innerText = 'Level'
+      levelTitle.id = 'level-title'
+      levelWrapper.appendChild(levelTitle)
+      const level = document.createElement('h5')
+      level.innerText = newGame.level
+      level.id = 'current-level'
+      levelWrapper.appendChild(level)
       
       const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
       nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0)'
@@ -188,16 +203,15 @@ function init() {
     }
     
   }
-  
 
   // ! ********** GAME **********
   // * Methods -> start, pause, end, saveGame 
   // * Talks to grid to create
 
   class Game {
-    constructor(difficulty) {
+    constructor() {
       this.score = 0
-      this.difficulty = difficulty
+      this.level = 1
     }
 
     resetGrid() {
@@ -261,7 +275,7 @@ function init() {
       const buttonsWrapper = document.querySelector('.buttons-wrapper')
       buttonsWrapper.innerHTML = ''
       const nextShapesOverlay = document.querySelector('#next-shapes-overlay')
-      nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)'
+      nextShapesOverlay.style.backgroundColor = 'rgba(0,0,0,0.6)'
       //Create Play again Button and add under the grid
       playAgainButton = document.createElement('button')
       playAgainButton.innerText = 'Play Again?'
@@ -289,7 +303,7 @@ function init() {
 
       const highscoreText = document.createElement('h5')
       highscoreText.innerText = `*** NEW HIGHSCORE ***`
-      highscoreText.style.fontSize = '40px'
+      highscoreText.style.fontSize = '20px'
       highscoreText.style.textAlign = 'center'
 
       const scoreText = document.createElement('h5')
@@ -298,9 +312,9 @@ function init() {
       scoreText.style.textAlign = 'center'
 
       gridTextOverlay.appendChild(gameOverText)
-      // if (newHighscore === true) {
-      //   gridTextOverlay.appendChild(highscoreText)
-      // }
+      if (newHighscore === true) {
+        gridTextOverlay.appendChild(highscoreText)
+      }
       gridTextOverlay.appendChild(scoreText)
     }
 
@@ -319,7 +333,7 @@ function init() {
       cellClasses = []
       gridRows = []
       gridCells = []
-
+      rowsBroken = 0
       tetris.load()
     }
 
@@ -337,11 +351,10 @@ function init() {
       this.cellWidth = newGame.difficulty === 'easy' || newGame.difficulty === 'medium' ? 25 : 35
       this.borderWidth = 4
       this.borderColor = color
-      this.gameSpeed = newGame.difficulty === 'easy' ? 2000 : newGame.difficulty === 'medium' ? 1000 : 500
+      this.gameSpeed = 1000
     }
 
     createGrid() {
-
       //Set Next shapes grid and title
       const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
       const nextShapesContainer = document.querySelector('.next-shapes')
@@ -753,15 +766,35 @@ function init() {
           const rowCount = newGrid.checkLine().length
           if (rowCount > 0) {
 
+            rowsBroken += rowCount
+
             if (rowCount === 1) {
-              newGame.score += 100
+              newGame.score += (100 * newGame.level)
             } else if (rowCount === 2) {
-              newGame.score += 200
+              newGame.score += (200 * newGame.level)
             } else if (rowCount === 3) {
-              newGame.score += 400
+              newGame.score += (400 * newGame.level)
             } else if (rowCount === 4) {
-              newGame.score += 800
+              newGame.score += (800 * newGame.level)
             }
+
+            //Update game speed
+            if (rowsBroken === 5) {
+              newGame.level = 2
+              newGrid.gameSpeed -= 75
+            } else if (rowsBroken === 15) {
+              newGame.level = 3
+              newGrid.gameSpeed -= 75
+            } else if (rowsBroken === 30) {
+              newGame.level = 4
+              newGrid.gameSpeed -= 75
+            } else if (rowsBroken >= 50) {
+              newGame.level = 5
+              newGrid.gameSpeed -= 75
+            } 
+
+            const currentLevel = document.querySelector('#current-level')
+            currentLevel.innerText = newGame.level
 
             currentScore.innerText = newGame.score            
             newGrid.checkLine().forEach(row => {

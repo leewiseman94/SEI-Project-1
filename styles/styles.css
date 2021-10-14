@@ -44,8 +44,8 @@ main {
   width: auto;
   height: 100%;
 }
-/* .cen */
 
+/*  CENTER WRAPPER  */
 .grid {
   display: flex;
   flex-direction: column;
@@ -54,6 +54,7 @@ main {
   justify-content: center;
   box-sizing: content-box;
   border-radius: 10px;
+  background-color: black;
 }
 
 .grid-row {
@@ -184,7 +185,7 @@ main {
   width: 20px;
 }
 
-/* Scoreboard */
+/* SCOREBOARD */
 .scoreboard-wrapper {
   margin: 20px 0;
 }
@@ -196,6 +197,24 @@ main {
 }
 
 #current-score {
+  color: white;
+  text-align: center;
+  font-size: 24px;
+  margin: 0;
+}
+
+/* LEVELS */
+.level-wrapper {
+  margin: 20px 0;
+}
+
+#level-title {
+  color: white;
+  text-align: center;
+  margin: 10px;
+}
+
+#current-level {
   color: white;
   text-align: center;
   font-size: 24px;
