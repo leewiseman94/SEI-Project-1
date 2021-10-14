@@ -94,6 +94,25 @@ main {
   border-radius: 10px;
 }
 
+/* HIGHSCORE */
+.left-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-right: 20px;
+}
+#highscore-title {
+  text-align: center;
+  color: white;
+  margin: 10px;
+}
+
+#highscore {
+  color: white;
+  text-align: center;
+  font-size: 24px;
+  margin: 10px 0;
+}
 
 /* NEXT SHAPES */
 .right-wrapper {
@@ -140,14 +159,14 @@ main {
 #score-title {
   color: white;
   text-align: center;
-  margin: 0;
+  margin: 10px;
 }
 
 #current-score {
   color: white;
   text-align: center;
   font-size: 24px;
-  margin: 10px 0;
+  margin: 0;
 }
 
 
