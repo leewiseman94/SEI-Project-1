@@ -15,7 +15,7 @@ body {
 }
 
 header {
-  height: 180px;
+  height: 130px;
   margin-bottom: 40px;
   display: flex;
   justify-content: center;
@@ -23,7 +23,7 @@ header {
 }
 
 header img {
-  height: 150px;
+  height: 100px;
 }
 
 main {

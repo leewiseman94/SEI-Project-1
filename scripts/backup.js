@@ -83,7 +83,7 @@ function init() {
 
     load() {
       // Load Game history
-
+      console.log('load')
       // * Right Wrapper reset
       // Reset next shapes
       const nextShapesWrapper = document.querySelector('.next-shapes-wrapper')
@@ -115,7 +115,6 @@ function init() {
       loadingIcon.src = './images/loading.gif'
       mainWrapper.appendChild(loadingIcon)
       mainWrapper.appendChild(loadingText)
-
       setTimeout(() => {
         startButton = document.createElement('button')
         startButton.innerText = 'Start Game'
@@ -126,6 +125,7 @@ function init() {
 
         newGame = new Game('hard')
         newGame.resetGrid()
+        
         newGrid.startGridAnimation()
       }, 3000)
     }
@@ -204,7 +204,6 @@ function init() {
       newGrid.createGrid()
       grid = document.querySelector('.grid')   
     }
-
 
     start() {
       const controlsWrapper = document.querySelector('.controls-wrapper')
@@ -857,6 +856,7 @@ function init() {
 
   tetris = new Tetris()
   tetris.load()
+  console.log(tetris)
 
 }
 window.addEventListener('DOMContentLoaded', init)

@@ -24,6 +24,8 @@ function init() {
   let upAnimationInterval
   let downAnimationInterval
 
+  const audio = document.querySelector('#break-line-sound')
+
   // * Grid Variables
   let gridRows = []
   let gridCells = []
@@ -148,6 +150,9 @@ function init() {
     }
 
     startNewGame() {
+      const countTimer = document.querySelector('#countdown-sound')
+      countTimer.play()
+
       newGrid.stopGridAnimation()
       // Push first 3 shapes to the nextShapes array
       nextShapes.push(new Shape())
@@ -193,12 +198,12 @@ function init() {
           countdownTimer.innerText = ''
           clearInterval(countdownInterval)
         }
-      }, 1000)
+      }, 900)
 
 
       setTimeout(() => {
         newGame.start()
-      }, 3000)
+      }, 2700)
       
     }
     
@@ -302,7 +307,7 @@ function init() {
       gameOverText.style.textAlign = 'center'
 
       const highscoreText = document.createElement('h5')
-      highscoreText.innerText = `*** NEW HIGHSCORE ***`
+      highscoreText.innerText = '*** NEW HIGHSCORE ***'
       highscoreText.style.fontSize = '20px'
       highscoreText.style.textAlign = 'center'
 
@@ -351,7 +356,7 @@ function init() {
       this.cellWidth = newGame.difficulty === 'easy' || newGame.difficulty === 'medium' ? 25 : 35
       this.borderWidth = 4
       this.borderColor = color
-      this.gameSpeed = 1000
+      this.gameSpeed = 800
     }
 
     createGrid() {
@@ -493,7 +498,14 @@ function init() {
           allGridRowsArray.push(row)
         })
         // If count rows animated = 0 
+        let animationUp = true
         if (countRowsAnimated === 0) {
+          animationUp = true
+        } else {
+          animationUp = false
+        }
+        
+        if (animationUp) {
           upAnimationInterval = setInterval(() => {
             if (allGridRowsArray.length > 0) {
               const nextRowUp = allGridRowsArray[allGridRowsArray.length - 1]
@@ -677,6 +689,7 @@ function init() {
 
     removeLines(row) {
       row.childNodes.forEach(rowCell => {
+        audio.play()
         // Remove filled/active and the color class and remove all from filledCells array
         rowCell.classList.remove('filled')
         rowCell.classList.remove('active')
@@ -762,8 +775,8 @@ function init() {
           this.stop()
           newGame.score += 10
           currentScore.innerText = newGame.score
-
-          const rowCount = newGrid.checkLine().length
+          let rowCount = 0
+          rowCount = newGrid.checkLine().length
           if (rowCount > 0) {
 
             rowsBroken += rowCount
@@ -779,16 +792,16 @@ function init() {
             }
 
             //Update game speed
-            if (rowsBroken === 5) {
+            if (rowsBroken >= 5 && newGame.level === 1) {
               newGame.level = 2
               newGrid.gameSpeed -= 75
-            } else if (rowsBroken === 15) {
+            } else if (rowsBroken >= 15 && newGame.level === 2) {
               newGame.level = 3
               newGrid.gameSpeed -= 75
-            } else if (rowsBroken === 30) {
+            } else if (rowsBroken >= 30 && newGame.level === 3) {
               newGame.level = 4
               newGrid.gameSpeed -= 75
-            } else if (rowsBroken >= 50) {
+            } else if (rowsBroken >= 50 && newGame.level === 4) {
               newGame.level = 5
               newGrid.gameSpeed -= 75
             } 
@@ -798,14 +811,12 @@ function init() {
 
             currentScore.innerText = newGame.score            
             newGrid.checkLine().forEach(row => {
-              console.log(row)
               newGrid.removeLines(row)
               newGrid.dropLinesAbove(row)
-            }) 
+            })
           }
           newGrid.play()
         }
-
       }
     }
 
@@ -827,16 +838,16 @@ function init() {
         return parseInt(rotatedNextCell.x) < -1
       })
       const hitRightWall = nextActiveShapeCells.some(rotatedNextCell => {
-        return parseInt(rotatedNextCell.x) >= this.cols
+        return parseInt(rotatedNextCell.x) >= newGrid.cols
       })
       const hitRightWallByTwo = nextActiveShapeCells.some(rotatedNextCell => {
-        return parseInt(rotatedNextCell.x) > this.cols
+        return parseInt(rotatedNextCell.x) > newGrid.cols
       })
       const hitCeiling = nextActiveShapeCells.some(rotatedNextCell => {
         return parseInt(rotatedNextCell.y) < 0
       })
       const hitFloor = nextActiveShapeCells.some(rotatedNextCell => {
-        return parseInt(rotatedNextCell.y) >= this.rows
+        return parseInt(rotatedNextCell.y) >= newGrid.rows
       })
       // If square dont rotate - if hits a wall then ajust accordingly = if collides with another shape or floor then don't rotate
       if (activeShape.name !== 'square') {
